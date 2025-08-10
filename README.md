@@ -21,3 +21,38 @@
       --user=default \
       --namespace=dev
     ```
+
+4. Change ```data-dir``` location
+   - Stop rke2 
+       ```shell
+       sudo systemctl stop rke2-server
+       sudo systemctl stop rke2-agent
+       ```
+   - Create ```config.yaml```
+       ```shell
+       touch /etc/rancher/rke2/config.yaml
+       ```
+   - Add the ```data-dir``` to the config file:
+       ```text
+       data-dir: "/home/tripg/Workspace/rancher/rke2"
+       ```
+   - Sync files:
+       ```shell
+       sudo rsync -a /var/lib/rancher/rke2/ /home/tripg/Workspace/rancher/rke2/
+       ```
+   - Restart the RKE2 server
+       ```shell
+       sudo systemctl start rke2-server
+       ```
+  
+5. Change Docker location
+   - Create ```daemon.json``` file:
+       ```shell
+       touch /etc/docker/daemon.json
+       ```
+   - Modify the ```/etc/docker/daemon.json``` config:
+       ```shell
+       {
+           "data-root": "/home/tripg/Workspace/docker"
+       }
+       ```

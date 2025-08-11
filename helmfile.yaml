@@ -1,0 +1,16 @@
+helmDefaults:
+  historyMax: 3
+  timeout: 1200
+
+bases:
+  - ./partial/environments.yaml
+  - ./partial/repos.yaml
+
+
+---
+releases:
+  - name: gpu-operator
+    condition: gpu-operator.enabled
+    chart: nvidia/gpu-operator
+    namespace: gpu-operator
+    createNamespace: true

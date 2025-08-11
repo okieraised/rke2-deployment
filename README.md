@@ -56,3 +56,41 @@
            "data-root": "/home/tripg/Workspace/docker"
        }
        ```
+     
+## II. Deployment
+1. Common Arguments
+    - Command:
+      - `helmfile init`: Initialize the helmfile, includes version checking and installation of helm and plug-ins
+      - `helmfile list`: list all the releases
+      - `helmfile template`: run helm templateon all releases, useful for debugging
+      - `helmfile sync`: run helm upgrade --install on all releases
+      - `helmfile apply`: look at what is already present in the cluster, and run helm upgrade --install only on releases that changed
+      - `helmfile diff`: only run the diff
+      - `helmfile destroy`: uninstall all releases
+    - Args:
+      - `-f, --file helmfile.yaml`: load config from file or directory
+      - `-e, --environment`: specify the environment name
+      - `--selector name=ingress`: Only run using the releases that match labels
+      - `--skip-deps`: skip running `helm repo update` and `helm dependency build`
+      - `--disable-force-update`: do not force helm repos to update when executing `helm repo add`
+
+2. Init ```helmfile```:
+    ```shell
+    helmfile init -i
+    ```
+   
+3. Install all components:
+    ```shell
+    helmfile apply -i -e dev --disable-force-update --skip-deps --include-needs --selector group=infra
+    helmfile apply -i -e dev --disable-force-update --skip-deps --include-needs --selector group=init
+    ```
+   
+4. Install individual components:
+    ```shell
+    helmfile apply -i -e dev --disable-force-update --skip-deps --selector name=keycloak
+    ```
+   
+5. Uninstall everything:
+    ```shell
+    helmfile destroy -i -e dev --disable-force-update
+    ```

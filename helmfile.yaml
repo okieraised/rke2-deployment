@@ -17,3 +17,15 @@ releases:
       - ./charts/local-path-provisioner/values-default.yaml
     labels:
       group: init
+
+  - name: postgres-operator
+    condition: postgres.enabled
+    chart: cnpg/cloudnative-pg
+    namespace: database
+    createNamespace: true
+    values:
+      - ""
+    labels:
+      group: database
+    needs:
+      - init

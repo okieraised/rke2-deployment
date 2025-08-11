@@ -94,3 +94,13 @@
     ```shell
     helmfile destroy -i -e dev --disable-force-update
     ```
+   
+## III. GPU Operator
+1. Install ```NVIDIA``` container runtime:
+Follow instructions on [container runtime](docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+
+2. Install ```gpu-operator```:
+Follow instructions on [gpu operator](docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html)
+
+3. Troubleshooting:
+[Troubleshoot](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/24.9.1/troubleshooting.html)

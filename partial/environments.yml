@@ -1,9 +1,0 @@
-environments:
-  dev:
-    values:
-    # Global variables for all charts
-    - ./environments/dev/0-variables.yml
-    - milvus:
-        enabled: true
-        version: 4.2.19
-        namespace: database

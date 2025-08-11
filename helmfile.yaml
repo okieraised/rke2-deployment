@@ -1,7 +1,6 @@
 helmDefaults:
   historyMax: 3
   timeout: 1200
-
 bases:
   - ./partial/environments.yaml
   - ./partial/repos.yaml
@@ -9,8 +8,12 @@ bases:
 
 ---
 releases:
-  - name: gpu-operator
-    condition: gpu-operator.enabled
-    chart: nvidia/gpu-operator
-    namespace: gpu-operator
+  - name: local-path-provisioner
+    condition: local-path-provisioner.enabled
+    chart: ./charts/local-path-provisioner
+    namespace: local-path-storage
     createNamespace: true
+    values:
+      - ./charts/local-path-provisioner/values-default.yaml
+    labels:
+      group: init

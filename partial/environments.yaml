@@ -3,3 +3,7 @@ environments:
     values:
       - local-path-provisioner:
           enabled: true
+      - database-env:
+          enabled: true
+      - postgresql:
+          enabled: true

@@ -19,13 +19,21 @@ releases:
       group: init
 
   - name: postgres-operator
-    condition: postgres.enabled
+    condition: postgresql.enabled
     chart: cnpg/cloudnative-pg
+    namespace:  database
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/postgres-operator.yaml
+    labels:
+      group: database
+
+  - name: postgres-cluster
+    condition: postgresql.enabled
+    chart: cnpg/cluster
     namespace: database
     createNamespace: true
     values:
-      - ""
+      - ./environments/{{ .Environment.Name }}/postgres.yaml
     labels:
       group: database
-    needs:
-      - init

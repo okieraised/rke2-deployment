@@ -1,0 +1,21 @@
+secrets:
+  encoded:
+    - name: postgres-superuser
+      namespaces:
+        - database
+      values:
+        username: cG9zdGdyZXM=
+        password: MkIzOXN4UTMzRTVIWkJ0bw==
+
+    - name: mysql-superuser
+      namespaces:
+        - database
+      values:
+        username: cm9vdA==
+        password: NnZLVVNVNWVyeFZuTzhNNA==
+
+    - name: keycloak-db-user
+      values:
+        username: a2V5Y2xvYWs=
+        password: VE9qZVhZMFQ1aDI3Nnc2eA==
+

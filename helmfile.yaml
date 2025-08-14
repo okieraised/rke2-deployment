@@ -18,6 +18,16 @@ releases:
     labels:
       group: init
 
+  - name: init-db-env
+    condition: database-env.enabled
+    chart: ./charts/init-db-env
+    namespace: database
+    createNamespace: true
+    values:
+      - ./charts/init-db-env/values-default.yaml
+    labels:
+      group: database
+
   - name: postgres-operator
     condition: postgresql.enabled
     chart: cnpg/cloudnative-pg

@@ -10,7 +10,7 @@ mariadb:
     size: 10Gi
   replicas: 1
   galera:
-    enabled: true
+    enabled: false
 # -- The list of Database CRs.
 # The `.mariaDbRef` keys will be ignored.
 # The `.name` keys are required to generate distinct CR names.

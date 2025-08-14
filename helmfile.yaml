@@ -69,6 +69,13 @@ releases:
     labels:
       group: database
 
-#  - name: mariadb-cluster
-#    condition:
+  - name: mariadb-cluster
+    condition: mariadb.enabled
+    chart: mariadb-operator/mariadb-cluster
+    namespace: database
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/mariadb.yaml
+    labels:
+      group: database
 

@@ -47,3 +47,28 @@ releases:
       - ./environments/{{ .Environment.Name }}/postgres.yaml
     labels:
       group: database
+    needs:
+      - init-db-env
+      - postgres-operator
+
+  - name: mariadb-operator-crds
+    condition: mariadb.enabled
+    chart: mariadb-operator/mariadb-operator-crds
+    namespace: database
+    createNamespace: true
+    labels:
+      group: database
+
+  - name: mariadb-operator
+    condition: mariadb.enabled
+    chart: mariadb-operator/mariadb-operator
+    namespace: database
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/mariadb-operator.yaml
+    labels:
+      group: database
+
+#  - name: mariadb-cluster
+#    condition:
+

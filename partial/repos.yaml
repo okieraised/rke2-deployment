@@ -5,3 +5,7 @@ repositories:
     url: https://helm.ngc.nvidia.com/nvidia
   - name: cnpg
     url: https://cloudnative-pg.github.io/charts
+  - name: mariadb-operator
+    url: https://helm.mariadb.com/mariadb-operator
+  - name: mysql-operator
+    url: https://mysql.github.io/mysql-operator/

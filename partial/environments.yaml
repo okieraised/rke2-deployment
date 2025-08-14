@@ -7,3 +7,7 @@ environments:
           enabled: true
       - postgresql:
           enabled: true
+      - mariadb:
+          enabled: true
+      - mysql:
+          enabled: true

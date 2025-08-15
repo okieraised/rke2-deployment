@@ -88,3 +88,16 @@ releases:
     labels:
       group: database
 
+  - name: mysql-cluster
+    condition: mysql.enabled
+    chart: mysql-operator/mysql-innodbcluster
+    namespace: database
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/mysql.yaml
+    labels:
+      group: database
+    needs:
+      - init-db-env
+      - mysql-operator
+

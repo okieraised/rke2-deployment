@@ -9,3 +9,5 @@ repositories:
     url: https://helm.mariadb.com/mariadb-operator
   - name: mysql-operator
     url: https://mysql.github.io/mysql-operator/
+  - name: emqx
+    url: https://repos.emqx.io/charts

@@ -79,3 +79,12 @@ releases:
     labels:
       group: database
 
+  - name: mysql-operator
+    condition: mysql.enabled
+    chart: mysql-operator/mysql-operator
+    namespace: database
+    createNamespace: true
+    disableValidationOnInstall: true # Required for CRDs installation
+    labels:
+      group: database
+

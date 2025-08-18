@@ -1,0 +1,14 @@
+apiVersion: v2
+name: keycloak
+description: A Helm chart for Kubernetes
+type: application
+
+version: 1.0.0
+
+#keywords:
+#  - job
+
+dependencies:
+  - name: base-template
+    version: ~0
+    repository: oci://ghcr.io/okieraised/helm-charts/base-template:0.1.0

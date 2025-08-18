@@ -11,3 +11,5 @@ environments:
           enabled: true
       - mysql:
           enabled: true
+      - cassandra:
+          enabled: true

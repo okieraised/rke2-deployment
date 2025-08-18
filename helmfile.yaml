@@ -101,3 +101,14 @@ releases:
       - init-db-env
       - mysql-operator
 
+  - name: cassandra-operator
+    condition: cassandra.enabled
+    chart: k8ssandra/k8ssandra-operator
+    namespace: database
+    createNamespace: true
+    disableValidationOnInstall: true
+    values:
+      - ./environments/{{ .Environment.Name }}/cassandra-operator.yaml
+    labels:
+      group: database
+

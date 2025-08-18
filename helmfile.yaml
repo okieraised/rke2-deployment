@@ -101,6 +101,32 @@ releases:
       - init-db-env
       - mysql-operator
 
+  - name: redis-operator
+    condition: redis.enabled
+    chart: ot-helm/redis-operator
+    namespace: database
+    createNamespace: true
+    disableValidationOnInstall: true
+    values:
+      - ./environments/{{ .Environment.Name }}/redis-operator.yaml.gotmpl
+    labels:
+      group: database
+
+  - name: redis-standalone
+    condition: redis.enabled
+    chart: ot-helm/redis-standalone
+    namespace: database
+    createNamespace: true
+    disableValidationOnInstall: true
+    values:
+      - ./environments/{{ .Environment.Name }}/redis-standalone.yaml.gotmpl
+    labels:
+      group: databse
+    needs:
+      - redis-operator
+
+
+
   - name: cassandra-operator
     condition: cassandra.enabled
     chart: k8ssandra/k8ssandra-operator

@@ -13,3 +13,8 @@ environments:
           enabled: true
       - cassandra:
           enabled: true
+      - redis:
+          enabled: true
+          namespace: database
+          operator:
+            version: v0.20.2

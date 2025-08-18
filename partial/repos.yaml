@@ -13,3 +13,5 @@ repositories:
     url: https://helm.k8ssandra.io/stable
   - name: emqx
     url: https://repos.emqx.io/charts
+  - name: ot-helm
+    url: https://ot-container-kit.github.io/helm-charts/

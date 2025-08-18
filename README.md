@@ -1,6 +1,21 @@
 # RKE2-Deployment
 This is my personal ***homelab*** helm deployment with RKE2 which does not use any of the Bitnami helm charts
 
+
+- [x] Local Path Provisioner
+- [x] GPU-Operator
+- [x] PostgreSQL
+- [x] MariaDB
+- [x] MySQL
+- [ ] Cassandra
+- [x] Redis
+- [ ] Keycloak
+- [ ] EMQX
+- [ ] Centrifugo
+- [ ] Harbor Registry
+- [ ] Ingress
+- [ ] 
+
 ## I. Installation
 1. Single Node
     ```shell

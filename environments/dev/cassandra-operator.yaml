@@ -2,7 +2,7 @@ global:
   # -- Determines whether k8ssandra-operator only watch and manages
   # K8ssandraCluster in the same namespace in which the operator is deployed
   # or if watches and manages K8ssandraClusters across all namespaces.
-  clusterScoped: false
+  clusterScoped: true
   # -- Labels to be added to all deployed resources.
   commonLabels: {}
   # -- Annotations to be added to all deployed resources.
@@ -95,4 +95,7 @@ client:
 disableCrdUpgraderJob: false
 # -- Allows disabling the check for the presence of cert-manager.
 cass-operator:
-  disableCertManagerCheck: true
+  disableCertManagerCheck: false
+
+admissionWebhooks:
+  enabled: false

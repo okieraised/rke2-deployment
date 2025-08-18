@@ -3,6 +3,8 @@ environments:
     values:
       - local-path-provisioner:
           enabled: true
+      - cert-manager:
+          enabled: true
       - database-env:
           enabled: true
       - postgresql:
@@ -13,6 +15,7 @@ environments:
           enabled: true
       - cassandra:
           enabled: true
+          namespace: database
       - redis:
           enabled: true
           namespace: database

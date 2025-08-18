@@ -1,0 +1,31 @@
+---
+rawYamlList:
+  - apiVersion: k8ssandra.io/v1alpha1
+    kind: K8ssandraCluster
+    metadata:
+      name: cassandra-cluster
+      namespace: {{ .Environment.Values.cassandra.namespace }}
+    spec:
+      cassandra:
+        serverVersion: "4.0.1"
+        datacenters:
+          - metadata:
+              name: homelab
+            size: 1
+            allowMultipleNodesPerWorker: true
+            storageConfig:
+              cassandraDataVolumeClaimSpec:
+                storageClassName: local-path
+                accessModes: [ "ReadWriteOnce" ]
+                resources:
+                  requests:
+                    storage: 10Gi
+            config:
+              jvmOptions:
+                heapSize: 512M
+            stargate:
+              size: 1
+              heapSize: 256M
+              affinity:
+                podAntiAffinity:
+                  preferredDuringSchedulingIgnoredDuringExecution: []

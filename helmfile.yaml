@@ -125,27 +125,50 @@ releases:
     needs:
       - redis-operator
 
-
+  - name: cert-manager
+    condition: cert-manager.enabled
+    chart: jetstack/cert-manager
+    namespace: cert-manager
+    createNamespace: true
+    disableValidationOnInstall: true
+    values:
+      - crds:
+          enabled: true
+    labels:
+      group: cert-manager
 
   - name: cassandra-operator
     condition: cassandra.enabled
     chart: k8ssandra/k8ssandra-operator
     namespace: database
     createNamespace: true
-    disableValidationOnInstall: true
     values:
       - ./environments/{{ .Environment.Name }}/cassandra-operator.yaml
     labels:
       group: database
+    needs:
+      - cert-manager/cert-manager
 
-
-  - name: keycloak
-    condition: keycloak.enabled
-    chart: ./charts/keycloak
-    namespace: {{ .Environment.Values.keycloak.namespace }}
+  - name: cassandra-standalone
+    condition: cassandra.enabled
+    chart: ./charts/cassandra
+    namespace: database
     createNamespace: true
     values:
-      - ./environments/{{ .Environment.Name }}/keycloak.yaml.gotmpl
+      - ./environments/{{ .Environment.Name }}/cassandra-standalone.yaml.gotmpl
     labels:
-      group: external
+      group: database
+    needs:
+      - cassandra-operator
+
+
+#  - name: keycloak
+#    condition: keycloak.enabled
+#    chart: ./charts/keycloak
+#    namespace: {{ .Environment.Values.keycloak.namespace }}
+#    createNamespace: true
+#    values:
+#      - ./environments/{{ .Environment.Name }}/keycloak.yaml.gotmpl
+#    labels:
+#      group: external
 

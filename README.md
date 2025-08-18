@@ -4,6 +4,7 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
 
 - [x] Local Path Provisioner
 - [x] GPU-Operator
+- [x] Cert Manager
 - [x] PostgreSQL
 - [x] MariaDB
 - [x] MySQL

@@ -89,9 +89,6 @@ sidecars:
   image: ""
   imagePullPolicy: "IfNotPresent"
   resources:
-    limits:
-      cpu: "100m"
-      memory: "128Mi"
     requests:
       cpu: "50m"
       memory: "64Mi"
@@ -107,11 +104,11 @@ nodeSelector: {}
 storageSpec:
   volumeClaimTemplate:
     spec:
-      # storageClassName: standard
+      storageClassName: local-path
       accessModes: ["ReadWriteOnce"]
       resources:
         requests:
-          storage: 1Gi
+          storage: 10Gi
   #   selector: {}
 
 podSecurityContext:
@@ -149,6 +146,11 @@ acl:
   secret:
     secretName: ""
 
-env: []
+env:
+  - name: REDIS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: redis-secret
+        key: password
   # - name: VAR_NAME
 #   value: "value1"

@@ -114,12 +114,12 @@ releases:
 
   - name: redis-standalone
     condition: redis.enabled
-    chart: ot-helm/redis-standalone
+    chart: ot-helm/redis
     namespace: database
     createNamespace: true
     disableValidationOnInstall: true
     values:
-      - ./environments/{{ .Environment.Name }}/redis-standalone.yaml.gotmpl
+      - ./environments/{{ .Environment.Name }}/redis-standalone.yaml
     labels:
       group: databse
     needs:

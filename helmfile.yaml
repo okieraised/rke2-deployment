@@ -161,14 +161,13 @@ releases:
     needs:
       - cassandra-operator
 
-
-#  - name: keycloak
-#    condition: keycloak.enabled
-#    chart: ./charts/keycloak
-#    namespace: {{ .Environment.Values.keycloak.namespace }}
-#    createNamespace: true
-#    values:
-#      - ./environments/{{ .Environment.Name }}/keycloak.yaml.gotmpl
-#    labels:
-#      group: external
+  - name: keycloak
+    condition: keycloak.enabled
+    chart: ./charts/keycloak
+    namespace: infrastructure
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/keycloak.yaml
+    labels:
+      group: infrastructure
 

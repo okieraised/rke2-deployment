@@ -23,5 +23,5 @@ environments:
             version: v0.20.2
       - keycloak:
           enabled: true
-          namespace: external-dev
+          namespace: infrastructure
           version: 26.3.2

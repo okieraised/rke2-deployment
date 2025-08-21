@@ -1,0 +1,110 @@
+nameOverride: keycloak
+fullnameOverride: keycloak
+
+replicas: 1
+
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: "26.3.3"
+  pullPolicy: IfNotPresent
+
+args:
+  - "start"
+  - "--http-enabled=true"
+  - "--hostname-strict=false"
+  - "--metrics-enabled=true"
+
+ports:
+  - name: http
+    containerPort: 8080
+    protocol: TCP
+  - name: mgmt
+    containerPort: 9000
+    protocol: TCP
+
+service:
+  enabled: true
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    - name: mgmt
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+
+environment:
+  variables:
+    KC_DB: "postgres"
+    KC_DB_URL: "jdbc:postgresql://postgres-cluster-pooler-rw.database.svc.cluster.local:5432/keycloak"
+    KC_HOSTNAME_STRICT: "false"
+    KC_HEALTH_ENABLED: "true"
+    KC_HTTP_ENABLED: "true"
+  secretVariables:
+    KC_BOOTSTRAP_ADMIN_USERNAME:
+      name: keycloak-bootstrap-admin-user
+      key: username
+    KC_BOOTSTRAP_ADMIN_PASSWORD:
+      name: keycloak-bootstrap-admin-user
+      key: password
+    KC_DB_USERNAME:
+      name: keycloak-db-user
+      key: username
+    KC_DB_PASSWORD:
+      name: keycloak-db-user
+      key: password
+
+startupProbe:
+  httpGet:
+    path: /health/started
+    port: 9000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 6
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 9000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 6
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 9000
+  initialDelaySeconds: 20
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 12
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+
+persistentVolumeClaims:
+  - name: keycloak-theme-pvc
+    metadata:
+      name: keycloak-theme-pvc
+    spec:
+      storageClassName: "local-path"
+    resources:
+    storageClassName: "local-path"
+    requests:
+    storage: 5Gi
+    accessModes:
+      - ReadWriteOnce
+
+volumes:
+  - name: keycloak-theme-volume
+    persistentVolumeClaim:
+      claimName: keycloak-theme-pvc
+
+volumeMounts:
+  - name: keycloak-theme-volume
+    mountPath: /opt/keycloak/themes
+    subPath: themes

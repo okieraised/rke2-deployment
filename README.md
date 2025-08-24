@@ -1,20 +1,33 @@
 # RKE2-Deployment
 This is my personal ***homelab*** helm deployment with RKE2 which does not use any of the Bitnami helm charts
 
+## Progress
+  - [x] Local Path Provisioner
+  - [x] GPU-Operator (with DCGM Exporter)
+  - [x] Cert Manager
+  - [x] PostgreSQL
+  - [x] MariaDB
+  - [x] MySQL
+  - [x] Cassandra
+  - [x] Redis
+  - [x] Keycloak
+  - [x] EMQX
+  - [ ] Centrifugo
+  - [ ] Harbor Registry
+  - [ ] Ingress
+  - [ ] MLFlow (Artifacts to MinIO, DB to Postgres)
+  - [ ] Kubeflow
+  - [ ] KServe/Seldon
+  - [ ] Airflow
+  - [ ] Superset
+  - [ ] Prometheus/Grafana
 
-- [x] Local Path Provisioner
-- [x] GPU-Operator
-- [x] Cert Manager
-- [x] PostgreSQL
-- [x] MariaDB
-- [x] MySQL
-- [x] Cassandra
-- [x] Redis
-- [x] Keycloak
-- [x] EMQX
-- [ ] Centrifugo
-- [ ] Harbor Registry
-- [ ] Ingress
+## Planned
+  - [ ] CDC: Debezium + Kafka/Redpanda or NATS JetStream.
+  - [ ] Apache Flink: Streaming
+  - [ ] ReductStore: Hot telemetry + ROS2 storage-
+  - [ ] OIDC Integration
+  - [ ] Velero: Cluster Backup
 
 ## I. Installation
 ### 1. Single Node

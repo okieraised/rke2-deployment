@@ -28,6 +28,24 @@ releases:
     labels:
       group: database
 
+  - name: ingress-nginx
+    chart: ingress-nginx/ingress-nginx
+    namespace: ingress
+    version: 4.13.1
+    createNamespace: true
+    labels:
+      group: gateway
+
+  - name: gateway-nginx
+    chart: ./charts/nginx
+    namespace: ingress
+    createNamespace: true
+    values:
+      - ./charts/nginx/values-default.yaml
+      - ./environments/{{ .Environment.Name }}/nginx.yaml
+    labels:
+      group: ingress
+
   - name: postgres-operator
     condition: postgresql.enabled
     chart: cnpg/cloudnative-pg

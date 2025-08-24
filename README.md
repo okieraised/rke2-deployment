@@ -64,6 +64,8 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
    - Add the ```data-dir``` to the config file:
        ```text
        data-dir: "/home/tripg/Workspace/rancher/rke2"
+       disable: rke2-ingress-nginx
+       enable-servicelb: true
        ```
    - Sync files:
        ```shell

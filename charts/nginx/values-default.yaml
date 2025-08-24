@@ -1,0 +1,46 @@
+replicas: 1
+nameOverride: gateway-nginx
+fullnameOverride: gateway-nginx
+image:
+  repository: nginx
+  tag: latest
+  pullPolicy: IfNotPresent
+ports:
+  - name: http
+    containerPort: 80
+service:
+  enabled: true
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+volumeMounts:
+  - name: default-config
+    mountPath: /etc/nginx/nginx.conf
+    subPath: nginx.conf
+  - name: http-config
+    mountPath: /etc/nginx/conf.d/http.conf
+    subPath: http.conf
+  - name: stream-config
+    mountPath: /etc/nginx/stream.d/stream.conf
+    subPath: stream.conf
+
+volumes:
+  - name: default-config
+    configMap:
+      name: gateway-nginx
+      items:
+        - key: default.conf
+          path: nginx.conf
+  - name: http-config
+    configMap:
+      name:  gateway-nginx
+      items:
+        - key: http.conf
+          path: http.conf
+  - name: stream-config
+    configMap:
+      name: gateway-nginx
+      items:
+        - key: stream.conf
+          path: stream.conf

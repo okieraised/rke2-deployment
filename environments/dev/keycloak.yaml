@@ -42,6 +42,7 @@ environment:
     KC_HOSTNAME_STRICT: "false"
     KC_HEALTH_ENABLED: "true"
     KC_HTTP_ENABLED: "true"
+    KC_HOSTNAME: "https://auth.homelab.io"
   secretVariables:
     KC_BOOTSTRAP_ADMIN_USERNAME:
       name: keycloak-bootstrap-admin-user

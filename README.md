@@ -12,7 +12,7 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
   - [x] Redis
   - [x] Keycloak
   - [x] EMQX
-  - [ ] Centrifugo
+  - [x] Centrifugo
   - [ ] Harbor Registry
   - [ ] Ingress
   - [ ] MLFlow (Artifacts to MinIO, DB to Postgres)

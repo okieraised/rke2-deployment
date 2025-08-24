@@ -181,3 +181,13 @@ releases:
     labels:
       group: infrastructure
 
+  - name: centrifugo
+    condition: centrifugo.enabled
+    chart: centrifugal/centrifugo
+    namespace: infrastructure
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/centrifugo.yaml.gotmpl
+    labels:
+      group: infrastructure
+

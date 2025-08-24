@@ -15,3 +15,5 @@ repositories:
     url: https://repos.emqx.io/charts
   - name: ot-helm
     url: https://ot-container-kit.github.io/helm-charts/
+  - name: centrifugal
+    url: https://centrifugal.github.io/helm-charts

@@ -1,7 +1,7 @@
 environments:
   dev:
     values:
-      - ./environments/dev/default.yaml
+      - ./environments/dev/0.yaml
       - local-path-provisioner:
           enabled: true
       - cert-manager:
@@ -27,5 +27,8 @@ environments:
           namespace: infrastructure
           version: 26.3.2
       - emqx:
+          enabled: true
+          namespace: infrastructure
+      - centrifugo:
           enabled: true
           namespace: infrastructure

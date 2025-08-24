@@ -20,6 +20,22 @@ secrets:
         username: admin
         password: UMkq2q3fu2OL
 
+    - name: centrifugo-secret
+      namespaces:
+        - infrastructure
+      values:
+        tokenHmacSecretKey: ""
+        adminPassword: "CQii41Q3CB95"
+        adminSecret: "nKJ35Zq79zUK"
+        apiKey: "ad73fbd1-9d8f-4f51-842f-0251d69d379f"
+        grpcApiKey: "4ba0664d-95f7-41c8-be87-a151ea0f2cae"
+        redisAddress: "redis://:o73e6hL5ni7B@redis-standalone.database.svc.cluster.local:6379/5"
+        redisPassword: "o73e6hL5ni7B"
+        redisSentinelPassword: ""
+        natsUrl: ""
+        license: ""
+
+
   encoded:
     - name: postgres-superuser
       namespaces:

@@ -8,30 +8,29 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
 - [x] PostgreSQL
 - [x] MariaDB
 - [x] MySQL
-- [ ] Cassandra
+- [x] Cassandra
 - [x] Redis
-- [ ] Keycloak
-- [ ] EMQX
+- [x] Keycloak
+- [x] EMQX
 - [ ] Centrifugo
 - [ ] Harbor Registry
 - [ ] Ingress
-- [ ] 
 
 ## I. Installation
-1. Single Node
+### 1. Single Node
     ```shell
     curl -sfL https://get.rke2.io | sudo sh -
     sudo systemctl enable rke2-server.service
     sudo systemctl start rke2-server.service
     ```
-   
-2. Install kubectl
+
+### 2. Install kubectl
     ```shell
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     ```
 
-3. Add ```dev``` context
+### 3. Add ```dev``` context
     ```shell
     kubectl config set-context dev \
       --cluster=default \
@@ -39,7 +38,7 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
       --namespace=dev
     ```
 
-4. Change ```data-dir``` location
+### 4. Change ```data-dir``` location
    - Stop rke2 
        ```shell
        sudo systemctl stop rke2-server
@@ -61,8 +60,8 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
        ```shell
        sudo systemctl start rke2-server
        ```
-  
-5. Change Docker location
+
+### 5. Change Docker location
    - Create ```daemon.json``` file:
        ```shell
        touch /etc/docker/daemon.json
@@ -75,7 +74,7 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
        ```
      
 ## II. Deployment
-1. Common Arguments
+### 1. Common Arguments
     - Command:
       - `helmfile init`: Initialize the helmfile, includes version checking and installation of helm and plug-ins
       - `helmfile list`: list all the releases
@@ -91,33 +90,51 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
       - `--skip-deps`: skip running `helm repo update` and `helm dependency build`
       - `--disable-force-update`: do not force helm repos to update when executing `helm repo add`
 
-2. Init ```helmfile```:
+### 2. Init ```helmfile```:
     ```shell
     helmfile init -i
     ```
-   
-3. Install all components:
+
+### 3. Install all components:
     ```shell
     helmfile apply -i -e dev --disable-force-update --skip-deps --include-needs --selector group=infra
     helmfile apply -i -e dev --disable-force-update --skip-deps --include-needs --selector group=init
     ```
-   
-4. Install individual components:
+
+### 4. Install individual components:
     ```shell
     helmfile apply -i -e dev --disable-force-update --skip-deps --selector name=keycloak
     ```
-   
-5. Uninstall everything:
+
+### 5. Uninstall everything:
     ```shell
     helmfile destroy -i -e dev --disable-force-update
     ```
    
 ## III. GPU Operator
-1. Install ```NVIDIA``` container runtime:
+### 1. Install ```NVIDIA``` container runtime:
 Follow instructions on [container runtime](docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
-2. Install ```gpu-operator```:
+### 2. Install ```gpu-operator```:
 Follow instructions on [gpu operator](docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html)
 
-3. Troubleshooting:
+### 3. Troubleshooting:
 [Troubleshoot](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/24.9.1/troubleshooting.html)
+
+
+## IV. Troubleshooting
+### 1. Too many open files
+    caused by running out of inotify resources. Resource limits are defined by fs.inotify.max_user_watches and 
+    fs.inotify.max_user_instances system variables. For example, in Ubuntu these default to 8192 and 128 respectively, 
+    which is not enough to create a cluster with many nodes. 
+    
+    Mofidy the ```/etc/sysctl.conf```
+    ```shell
+    fs.inotify.max_user_watches = 2099999999
+    fs.inotify.max_user_instances = 2099999999
+    fs.inotify.max_queued_events = 2099999999
+    ```
+   Then run:
+   ```shell
+    sudo sysctl --system
+    ```

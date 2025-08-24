@@ -171,3 +171,13 @@ releases:
     labels:
       group: infrastructure
 
+  - name: emqx
+    condition: emqx.enabled
+    chart: emqx/emqx
+    namespace: infrastructure
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/emqx.yaml.gotmpl
+    labels:
+      group: infrastructure
+

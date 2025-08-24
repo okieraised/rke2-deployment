@@ -1,6 +1,7 @@
 environments:
   dev:
     values:
+      - ./environments/dev/default.yaml
       - local-path-provisioner:
           enabled: true
       - cert-manager:
@@ -25,3 +26,6 @@ environments:
           enabled: true
           namespace: infrastructure
           version: 26.3.2
+      - emqx:
+          enabled: true
+          namespace: infrastructure

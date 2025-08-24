@@ -13,6 +13,13 @@ secrets:
         username: admin
         password: 7o7Gk5iDOsyT
 
+    - name: emqx-dashboard-admin-user
+      namespaces:
+        - infrastructure
+      values:
+        username: admin
+        password: UMkq2q3fu2OL
+
   encoded:
     - name: postgres-superuser
       namespaces:

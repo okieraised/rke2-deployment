@@ -218,3 +218,19 @@ releases:
     labels:
       group: eck
 
+  - name: eck-stack
+    condition: eck.enabled
+    chart: elastic/eck-stack
+    namespace: eck
+    createNamespace: true
+    labels:
+      group: eck
+    values:
+      - ./environments/{{ .Environment.Name }}/eck-stack.yaml
+      - ./environments/{{ .Environment.Name }}/eck-elasticsearch.yaml
+      - ./environments/{{ .Environment.Name }}/eck-logstash.yaml
+      - ./environments/{{ .Environment.Name }}/eck-kibana.yaml
+    needs:
+      - eck-operator
+
+

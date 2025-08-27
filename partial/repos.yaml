@@ -19,3 +19,5 @@ repositories:
     url: https://ot-container-kit.github.io/helm-charts/
   - name: centrifugal
     url: https://centrifugal.github.io/helm-charts
+  - name: elastic
+    url: https://helm.elastic.co

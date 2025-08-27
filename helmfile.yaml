@@ -209,3 +209,12 @@ releases:
     labels:
       group: infrastructure
 
+  - name: eck-operator
+    condition: eck.enabled
+    chart: elastic/eck-operator
+    namespace: eck
+    createNamespace: true
+    disableValidationOnInstall: true
+    labels:
+      group: eck
+

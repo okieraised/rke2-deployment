@@ -32,3 +32,6 @@ environments:
       - centrifugo:
           enabled: true
           namespace: infrastructure
+      - eck:
+          enabled: true
+          namespace: eck

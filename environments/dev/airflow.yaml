@@ -372,14 +372,14 @@ rbac:
 # For Airflow <3.0, LocalKubernetesExecutor and CeleryKubernetesExecutor are also supported.
 # Specify executors in a prioritized list to leverage multiple execution environments as needed:
 # https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/executor/index.html#using-multiple-executors-concurrently
-executor: "CeleryExecutor"
+executor: "KubernetesExecutor,CeleryExecutor"
 
 # If this is true and using LocalExecutor/KubernetesExecutor/CeleryKubernetesExecutor, the scheduler's
 # service account will have access to communicate with the api-server and launch pods.
 # If this is true and using CeleryExecutor/KubernetesExecutor/CeleryKubernetesExecutor, the workers
 # will be able to launch pods.
 allowPodLaunching: true
-allowJobLaunching: false
+allowJobLaunching: true
 
 # Environment variables for all airflow containers
 env: []
@@ -508,7 +508,7 @@ data:
   # data:
   #   connection: base64_encoded_connection_string
 
-  metadataSecretName: ~
+  metadataSecretName: airflow-credentials
   # When providing secret names and using the same database for metadata and
   # result backend, for Airflow < 2.4.0 it is necessary to create a separate
   # secret for result backend but with a db+ scheme prefix.
@@ -548,7 +548,7 @@ data:
 
 # Fernet key settings
 # Note: fernetKey can only be set during install, not upgrade
-fernetKey: ~
+fernetKey: ~ # Need to set fernetkey
 fernetKeySecretName: ~
 # Add custom annotations to the fernet key secret
 fernetKeySecretAnnotations: {}
@@ -566,7 +566,7 @@ jwtSecretAnnotations: {}
 jwtSecretName: ~
 
 # Flask secret key for Airflow <3 Webserver: `[webserver] secret_key` in airflow.cfg
-webserverSecretKey: ~
+webserverSecretKey: 123456aA@
 # Add custom annotations to the webserver secret
 webserverSecretAnnotations: {}
 webserverSecretKeySecretName: ~
@@ -2984,15 +2984,15 @@ dags:
     # Volume size for dags
     size: 1Gi
     # If using a custom storageClass, pass name here
-    storageClassName:
+    storageClassName: local-path
     # access mode of the persistent volume
     accessMode: ReadWriteOnce
     ## the name of an existing PVC to use
-    existingClaim:
+    #existingClaim:
     ## optional subpath for dag volume mount
     subPath: ~
   gitSync:
-    enabled: false
+    enabled: true
 
     # git repo clone url
     # ssh example: git@github.com:apache/airflow.git
@@ -3001,13 +3001,13 @@ dags:
     branch: v2-2-stable
     rev: HEAD
     # The git revision (branch, tag, or hash) to check out, v4 only
-    ref: v2-2-stable
+    ref: dev
     depth: 1
     # the number of consecutive failures allowed before aborting
-    maxFailures: 0
+    maxFailures: 3
     # subpath within the repo where dags are located
     # should be "" if dags are at repo root
-    subPath: "tests/dags"
+    subPath: "dags"
     # if your repo needs a user name password
     # you can load them to a k8s secret like the one below
     #   ---
@@ -3089,7 +3089,10 @@ dags:
     #       mountPath: "{{ .Values.my_custom_path }}"
     #       readOnly: true
     extraVolumeMounts: []
-    env: []
+    env:
+      - name: GIT_SSL_NO_VERIFY
+        value: "true"
+
     # Supported env vars for gitsync can be found at https://github.com/kubernetes/git-sync
     # - name: ""
     #   value: ""

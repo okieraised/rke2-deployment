@@ -233,4 +233,14 @@ releases:
     needs:
       - eck-operator
 
+  - name: airflow
+    condition: airflow.enabled
+    chart: apache-airflow/airflow
+    namespace: airflow
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/airflow.yaml
+    labels:
+      group: airflow
+
 

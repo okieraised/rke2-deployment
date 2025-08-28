@@ -35,3 +35,6 @@ environments:
       - eck:
           enabled: true
           namespace: eck
+      - airflow:
+          enabled: true
+          namespace: airflow

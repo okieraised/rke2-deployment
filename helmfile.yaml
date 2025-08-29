@@ -209,7 +209,38 @@ releases:
     labels:
       group: infrastructure
 
-  - name: eck-operator
+#  - name: harbor
+#    condition: harbor.enabled
+#    chart: harbor/harbor
+#    namespace: registry
+#    createNamespace: true
+#    values:
+#      - ./environments/{{ .Environment.Name }}/harbor.yaml.gotmpl
+#    labels:
+#      group: registry
+
+  - name: jaeger-operator
+    condition: jaeger.enabled
+    chart: jaegertracing/jaeger-operator
+    namespace: observability
+    createNamespace: true
+    disableValidationOnInstall: true
+    values:
+      - ./environments/{{ .Environment.Name }}/jaeger-operator.yaml
+    labels:
+      group: observability
+
+  - name: jaeger
+    condition: jaeger.enabled
+    chart: ./charts/jaeger
+    namespace: observability
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/jaeger.yaml
+    labels:
+      group: observability
+
+  - name: elastic-operator
     condition: eck.enabled
     chart: elastic/eck-operator
     namespace: eck
@@ -218,7 +249,7 @@ releases:
     labels:
       group: eck
 
-  - name: eck-stack
+  - name: elasticsearch
     condition: eck.enabled
     chart: elastic/eck-stack
     namespace: eck
@@ -226,12 +257,9 @@ releases:
     labels:
       group: eck
     values:
-      - ./environments/{{ .Environment.Name }}/eck-stack.yaml
       - ./environments/{{ .Environment.Name }}/eck-elasticsearch.yaml
-      - ./environments/{{ .Environment.Name }}/eck-logstash.yaml
-      - ./environments/{{ .Environment.Name }}/eck-kibana.yaml
     needs:
-      - eck-operator
+      - elastic-operator
 
   - name: airflow
     condition: airflow.enabled

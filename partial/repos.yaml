@@ -21,3 +21,5 @@ repositories:
     url: https://centrifugal.github.io/helm-charts
   - name: elastic
     url: https://helm.elastic.co
+  - name: jaegertracing
+    url: https://jaegertracing.github.io/helm-charts

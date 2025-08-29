@@ -143,17 +143,18 @@ Follow instructions on [gpu operator](https://docs.nvidia.com/datacenter/cloud-n
 
 ## IV. Troubleshooting
 ### 1. Too many open files
-    caused by running out of inotify resources. Resource limits are defined by fs.inotify.max_user_watches and 
-    fs.inotify.max_user_instances system variables. For example, in Ubuntu these default to 8192 and 128 respectively, 
-    which is not enough to create a cluster with many nodes. 
-    
-    Mofidy the ```/etc/sysctl.conf```
-    ```shell
-    fs.inotify.max_user_watches = 2099999999
-    fs.inotify.max_user_instances = 2099999999
-    fs.inotify.max_queued_events = 2099999999
-    ```
-   Then run:
-   ```shell
-    sudo sysctl --system
-    ```
+caused by running out of inotify resources. Resource limits are defined by fs.inotify.max_user_watches and 
+fs.inotify.max_user_instances system variables. For example, in Ubuntu these default to 8192 and 128 respectively, 
+which is not enough to create a cluster with many nodes. 
+
+Mofidy the ```/etc/sysctl.conf```
+```shell
+fs.inotify.max_user_watches = 2099999999
+fs.inotify.max_user_instances = 2099999999
+fs.inotify.max_queued_events = 2099999999
+vm.max_map_count=262144
+```
+Then run:
+```shell
+sudo sysctl --system
+```

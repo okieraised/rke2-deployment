@@ -9,7 +9,7 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
   - [x] MariaDB
   - [x] MySQL
   - [x] Cassandra
-  - [ ] Elasticsearch
+  - [x] Elasticsearch
   - [x] Redis
   - [x] Keycloak
   - [x] EMQX
@@ -21,7 +21,7 @@ This is my personal ***homelab*** helm deployment with RKE2 which does not use a
   - [ ] KServe/Seldon
   - [ ] Airflow
   - [ ] Superset
-  - [ ] Prometheus/Grafana
+  - [x] Prometheus/Grafana
   - [ ] Openmetadata
   - [ ] DataHub
   - [ ] Oauth2-Proxy

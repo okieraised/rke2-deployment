@@ -38,5 +38,5 @@ environments:
       - airflow:
           enabled: true
           namespace: airflow
-      - jaeger:
+      - observability:
           enabled: true

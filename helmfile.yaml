@@ -220,7 +220,7 @@ releases:
 #      group: registry
 
   - name: jaeger-operator
-    condition: jaeger.enabled
+    condition: observability.enabled
     chart: jaegertracing/jaeger-operator
     namespace: observability
     createNamespace: true
@@ -231,12 +231,32 @@ releases:
       group: observability
 
   - name: jaeger
-    condition: jaeger.enabled
+    condition: observability.enabled
     chart: jaegertracing/jaeger
     namespace: observability
     createNamespace: true
     values:
       - ./environments/{{ .Environment.Name }}/jaeger.yaml
+    labels:
+      group: observability
+
+  - name: prometheus-operator-crds
+    condition: observability.enabled
+    chart: prometheus-community/prometheus-operator-crds
+    namespace: observability
+    createNamespace: true
+    labels:
+      group: observability
+
+  - name: kube-prometheus-stack
+    condition: observability.enabled
+    chart: prometheus-community/kube-prometheus-stack
+    needs:
+      - prometheus-operator-crds
+    namespace: observability
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/kube-prometheus-stack.yaml
     labels:
       group: observability
 

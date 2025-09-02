@@ -1,5 +1,138 @@
 ---
 eck-elasticsearch:
+  # Default values for eck-elasticsearch.
+  # This is a YAML-formatted file.
+
+  # Overridable names of the Elasticsearch resource.
+  # By default, this is the Release name set for the chart,
+  # followed by 'eck-elasticsearch'.
+  #
+  # nameOverride will override the name of the Chart with the name set here,
+  # so nameOverride: quickstart, would convert to '{{ Release.name }}-quickstart'
+  #
+  # nameOverride: "quickstart"
+  #
+  # fullnameOverride will override both the release name, and the chart name,
+  # and will name the Elasticsearch resource exactly as specified.
+  #
+  # fullnameOverride: "quickstart"
+
+  # Version of Elasticsearch.
+  #
+  version: 9.2.0-SNAPSHOT
+
+  # Elasticsearch Docker image to deploy
+  #
+  # image:
+
+  # Labels that will be applied to Elasticsearch.
+  #
+  labels: { }
+
+  # Annotations that will be applied to Elasticsearch.
+  #
+  annotations: { }
+
+  # Settings for configuring Elasticsearch users and roles.
+  # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-users-and-roles.html
+  #
+  auth: { }
+
+  # Settings for configuring stack monitoring.
+  # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-stack-monitoring.html
+  #
+  monitoring: { }
+    # metrics:
+    #   elasticsearchRefs:
+    #   - name: monitoring
+    #     namespace: observability
+    # logs:
+    #   elasticsearchRefs:
+  #   - name: monitoring
+  #     namespace: observability
+
+  # Control the Elasticsearch transport module used for internal communication between nodes.
+  # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-transport-settings.html
+  #
+  transport: { }
+    # service:
+    #   metadata:
+    #     labels:
+    #       my-custom: label
+    #   spec:
+    #     type: LoadBalancer
+    # tls:
+    #   subjectAltNames:
+    #     - ip: 1.2.3.4
+    #     - dns: hulk.example.com
+  #   certificate:
+  #     secretName: custom-ca
+
+  # Settings to control how Elasticsearch will be accessed.
+  # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-accessing-elastic-services.html
+  #
+  http: { }
+    # service:
+    #   metadata:
+    #     labels:
+    #       my-custom: label
+    #   spec:
+    #     type: LoadBalancer
+    # tls:
+    #   selfSignedCertificate:
+    #     # To fully disable TLS for the HTTP layer of Elasticsearch, simply
+    #     # set the below field to 'true', removing all other fields.
+    #     disabled: false
+    #     subjectAltNames:
+    #       - ip: 1.2.3.4
+    #       - dns: hulk.example.com
+  #   certificate:
+  #     secretName: custom-ca
+
+  # Control Elasticsearch Secure Settings.
+  # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-es-secure-settings.html#k8s-es-secure-settings
+  #
+  secureSettings: [ ]
+    # - secretName: one-secure-settings-secret
+    # Projection of secret keys to specific paths
+    # - secretName: gcs-secure-settings
+    #   entries:
+    #   - key: gcs.client.default.credentials_file
+    #   - key: gcs_client_1
+    #     path: gcs.client.client_1.credentials_file
+  #   - key: gcs_client_2
+  #     path: gcs.client.client_2.credentials_file
+
+  # Settings for limiting the number of simultaneous changes to an Elasticsearch resource.
+  # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-update-strategy.html
+  #
+  updateStrategy: { }
+    # changeBudget:
+  #   maxSurge: 3
+  #   maxUnavailable: 1
+
+  # Controlling of connectivity between remote clusters within the same kubernetes cluster.
+  # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-remote-clusters.html
+  #
+  remoteClusters: { }
+    # - name: cluster-two
+    #   elasticsearchRef:
+  #     name: cluster-two
+  #     namespace: ns-two
+
+  # RemoteClusterServer specifies if the remote cluster server should be enabled.
+  # This must be enabled if this cluster is a remote cluster which is expected to be accessed using API key authentication.
+  #
+  remoteClusterServer: { }
+  #   enabled: true
+
+  # VolumeClaimDeletePolicy sets the policy for handling deletion of PersistentVolumeClaims for all NodeSets.
+  # Possible values are DeleteOnScaledownOnly and DeleteOnScaledownAndClusterDeletion.
+  # By default, if not set or empty, the operator sets DeleteOnScaledownAndClusterDeletion.
+  #
+  volumeClaimDeletePolicy: ""
+
+
   nodeSets:
     - name: masters
       count: 1

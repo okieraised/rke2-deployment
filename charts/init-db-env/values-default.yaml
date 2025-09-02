@@ -13,6 +13,13 @@ secrets:
         username: admin
         password: 7o7Gk5iDOsyT
 
+    - name: cassandra-user
+      namespaces:
+        - observability
+      values:
+        cassandra.username: cassandra-cluster-superuser
+        cassandra.password: xjegjzbrVBndmoIXrzFc
+
     - name: emqx-dashboard-admin-user
       namespaces:
         - infrastructure

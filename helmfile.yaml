@@ -232,7 +232,7 @@ releases:
 
   - name: jaeger
     condition: jaeger.enabled
-    chart: ./charts/jaeger
+    chart: jaegertracing/jaeger
     namespace: observability
     createNamespace: true
     values:

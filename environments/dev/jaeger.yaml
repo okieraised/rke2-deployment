@@ -1,0 +1,802 @@
+global:
+  imageRegistry:
+
+provisionDataStore:
+  cassandra: false
+  elasticsearch: false
+  kafka: false
+
+networkPolicy:
+  enabled: false
+
+# Overrides the image tag where default is the chart appVersion.
+tag: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+allInOne:
+  enabled: false
+
+storage:
+  # allowed values (cassandra, elasticsearch, grpc-plugin, badger, memory)
+  type: cassandra
+  cassandra:
+    host: cassandra-cluster-homelab-service.database.svc.cluster.local
+    servers: cassandra-cluster-homelab-service.database.svc.cluster.local
+    port: 9042
+    # Change this value to false if you want to avoid starting the
+    # -cassandra-schema Job
+    schemaJobEnabled: true
+    tls:
+      enabled: false
+      secretName: cassandra-tls-secret
+    user: cassandra-cluster-superuser
+    usePassword: true
+    password: xjegjzbrVBndmoIXrzFc
+    keyspace: jaeger_v1_jaeger_datacenter
+    consistency: QUORUM
+
+    ## Use existing secret (ignores previous password)
+    # existingSecret:
+    ## Cassandra related env vars to be configured on the concerned components
+    extraEnv:
+      []
+      # - name: CASSANDRA_SERVERS
+      #   value: cassandra
+      # - name: CASSANDRA_PORT
+      #   value: "9042"
+      # - name: CASSANDRA_KEYSPACE
+      #   value: jaeger_v1_test
+      # - name: CASSANDRA_TLS_ENABLED
+    #   value: "false"
+    ## Cassandra related cmd line opts to be configured on the concerned components
+    cmdlineParams:
+      {}
+      # cassandra.servers: cassandra
+      # cassandra.port: 9042
+      # cassandra.keyspace: jaeger_v1_test
+    # cassandra.tls.enabled: "false"
+
+
+
+# This is the jaeger-cassandra-schema Job which sets up the Cassandra schema for
+# use by Jaeger
+schema:
+  annotations: {}
+  tolerations: []
+  image:
+    registry: ""
+    repository: jaegertracing/jaeger-cassandra-schema
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  resources:
+    {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 256m
+  #   memory: 128Mi
+  serviceAccount:
+    create: true
+    # Explicitly mounts the API credentials for the Service Account
+    automountServiceAccountToken: true
+    name:
+  podAnnotations: {}
+  podLabels: {}
+  securityContext: {}
+  podSecurityContext: {}
+  nodeSelector: {}
+  ## Deadline for cassandra schema creation job
+  activeDeadlineSeconds: 300
+  extraEnv:
+    - name: MODE
+      value: prod
+    - name: TRACE_TTL
+      value: "604800"
+    - name: DEPENDENCIES_TTL
+      value: "604800"
+    - name: DATACENTER
+      value: "jaeger_datacenter"
+
+    # - name: MODE
+    #   value: prod
+    # - name: TRACE_TTL
+    #   value: "172800"
+    # - name: DEPENDENCIES_TTL
+  #   value: "0"
+
+agent:
+  podSecurityContext: {}
+  securityContext: {}
+  enabled: true
+  annotations: {}
+  image:
+    registry: ""
+    repository: jaegertracing/jaeger-agent
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  cmdlineParams: {}
+  extraEnv: []
+  daemonset:
+    useHostPort: false
+    updateStrategy:
+      {}
+      # type: RollingUpdate
+      # rollingUpdate:
+    #   maxUnavailable: 1
+  service:
+    annotations: {}
+    # List of IP ranges that are allowed to access the load balancer (if supported)
+    loadBalancerSourceRanges: []
+    type: ClusterIP
+    # zipkinThriftPort :accept zipkin.thrift over compact thrift protocol
+    zipkinThriftPort: 5775
+    # compactPort: accept jaeger.thrift over compact thrift protocol
+    compactPort: 6831
+    # binaryPort: accept jaeger.thrift over binary thrift protocol
+    binaryPort: 6832
+    # samplingPort: (HTTP) serve configs, sampling strategies
+    samplingPort: 5778
+  resources:
+    {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 256m
+  #   memory: 128Mi
+  serviceAccount:
+    create: true
+    # Explicitly mounts the API credentials for the Service Account
+    automountServiceAccountToken: false
+    name:
+    annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  ## Additional pod labels
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+  extraSecretMounts: []
+  # - name: jaeger-tls
+  #   mountPath: /tls
+  #   subPath: ""
+  #   secretName: jaeger-tls
+  #   readOnly: true
+  extraConfigmapMounts: []
+  # - name: jaeger-config
+  #   mountPath: /config
+  #   subPath: ""
+  #   configMap: jaeger-config
+  #   readOnly: true
+  envFrom: []
+  useHostNetwork: false
+  dnsPolicy: ClusterFirst
+  priorityClassName: ""
+  initContainers: []
+
+  serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+    # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
+    relabelings: []
+    # -- ServiceMonitor metric relabel configs to apply to samples before ingestion
+    # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#endpoint
+    metricRelabelings: []
+
+collector:
+  podSecurityContext: {}
+  securityContext: {}
+  enabled: true
+  annotations: {}
+  image:
+    registry: ""
+    repository: jaegertracing/jaeger-collector
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  dnsPolicy: ClusterFirst
+  extraEnv: []
+  envFrom: []
+  cmdlineParams: {}
+  basePath: /
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+    behavior: {}
+    # targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+  service:
+    annotations: {}
+    # The IP to be used by the load balancer (if supported)
+    loadBalancerIP: ""
+    # List of IP ranges that are allowed to access the load balancer (if supported)
+    loadBalancerSourceRanges: []
+    type: ClusterIP
+    # Cluster IP address to assign to service. Set to None to make service headless
+    clusterIP: ""
+    grpc:
+      port: 14250
+      # nodePort:
+    # httpPort: can accept spans directly from clients in jaeger.thrift format
+    http:
+      port: 14268
+      # nodePort:
+    # can accept Zipkin spans in JSON or Thrift
+    zipkin:
+      {}
+      # port: 9411
+    # nodePort:
+    otlp:
+      grpc:
+        name: otlp-grpc
+        port: 4317
+      http:
+        name: otlp-http
+        port: 4318
+    admin:
+      name: admin
+      targetPort: admin
+  ingress:
+    enabled: false
+    # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+    # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+    # ingressClassName: nginx
+    annotations: {}
+    labels: {}
+    # Used to create an Ingress record.
+    # The 'hosts' variable accepts two formats:
+    # hosts:
+    #   - chart-example.local
+    # or:
+    # hosts:
+    #   - host: chart-example.local
+    #     servicePort: grpc
+    # annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # labels:
+    # app: jaeger-collector
+    # tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
+    pathType:
+  resources:
+    {}
+    # limits:
+    #   cpu: 1
+    #   memory: 1Gi
+    # requests:
+    #   cpu: 500m
+  #   memory: 512Mi
+  serviceAccount:
+    create: true
+    # Explicitly mounts the API credentials for the Service Account
+    automountServiceAccountToken: false
+    name:
+    annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadContraints: []
+  podAnnotations: {}
+  ## Additional pod labels
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+  extraSecretMounts: []
+  # - name: jaeger-tls
+  #   mountPath: /tls
+  #   subPath: ""
+  #   secretName: jaeger-tls
+  #   readOnly: true
+  extraConfigmapMounts: []
+  # - name: jaeger-config
+  #   mountPath: /config
+  #   subPath: ""
+  #   configMap: jaeger-config
+  #   readOnly: true
+  # samplingConfig: |-
+  #   {
+  #     "service_strategies": [
+  #       {
+  #         "service": "foo",
+  #         "type": "probabilistic",
+  #         "param": 0.8,
+  #         "operation_strategies": [
+  #           {
+  #             "operation": "op1",
+  #             "type": "probabilistic",
+  #             "param": 0.2
+  #           },
+  #           {
+  #             "operation": "op2",
+  #             "type": "probabilistic",
+  #             "param": 0.4
+  #           }
+  #         ]
+  #       },
+  #       {
+  #         "service": "bar",
+  #         "type": "ratelimiting",
+  #         "param": 5
+  #       }
+  #     ],
+  #     "default_strategy": {
+  #       "type": "probabilistic",
+  #       "param": 1
+  #     }
+  #   }
+  priorityClassName: ""
+  serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+    # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
+    relabelings: []
+    # -- ServiceMonitor metric relabel configs to apply to samples before ingestion
+    # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#endpoint
+    metricRelabelings: []
+  initContainers: []
+  networkPolicy:
+    enabled: false
+    # ingressRules:
+    #   namespaceSelector: {}
+    #   podSelector: {}
+    #   customRules: []
+    # egressRules:
+    #   namespaceSelector: {}
+    #   podSelector: {}
+    #   customRules: []
+
+query:
+  enabled: true
+  basePath: /
+  initContainers: []
+  oAuthSidecar:
+    enabled: false
+    resources:
+      {}
+      # limits:
+      #   cpu: 500m
+      #   memory: 512Mi
+      # requests:
+      #   cpu: 256m
+    #   memory: 128Mi
+    image:
+      registry: quay.io
+      repository: oauth2-proxy/oauth2-proxy
+      tag: v7.6.0
+      digest: ""
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+    containerPort: 4180
+    args: []
+    extraEnv: []
+    extraConfigmapMounts: []
+    extraSecretMounts: []
+  # config: |-
+  #   provider = "oidc"
+  #   https_address = ":4180"
+  #   upstreams = ["http://localhost:16686"]
+  #   redirect_url = "https://jaeger-svc-domain/oauth2/callback"
+  #   client_id = "jaeger-query"
+  #   oidc_issuer_url = "https://keycloak-svc-domain/auth/realms/Default"
+  #   cookie_secure = "true"
+  #   email_domains = "*"
+  #   oidc_groups_claim = "groups"
+  #   user_id_claim = "preferred_username"
+  #   skip_provider_button = "true"
+  podSecurityContext: {}
+  securityContext: {}
+  agentSidecar:
+    enabled: true
+  #    resources:
+  #      limits:
+  #        cpu: 500m
+  #        memory: 512Mi
+  #      requests:
+  #        cpu: 256m
+  #        memory: 128Mi
+  annotations: {}
+  image:
+    registry: ""
+    repository: jaegertracing/jaeger-query
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  dnsPolicy: ClusterFirst
+  cmdlineParams: {}
+  extraEnv: []
+  envFrom: []
+  replicaCount: 1
+  service:
+    annotations: {}
+    type: ClusterIP
+    # List of IP ranges that are allowed to access the load balancer (if supported)
+    loadBalancerSourceRanges: []
+    port: 80
+    # Specify a custom target port (e.g. port of auth proxy)
+    # targetPort: 8080
+    # Specify a specific node port when type is NodePort
+    # nodePort: 32500
+    admin:
+      name: admin
+      targetPort: admin
+  ingress:
+    enabled: false
+    # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+    # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+    # ingressClassName: nginx
+    annotations: {}
+    labels: {}
+    # Used to create an Ingress record.
+    # hosts:
+    #   - chart-example.local
+    # annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # labels:
+    # app: jaeger-query
+    # tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
+    pathType:
+    health:
+      exposed: false
+  resources:
+    {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #    cpu: 256m
+  #    memory: 128Mi
+  serviceAccount:
+    create: true
+    # Explicitly mounts the API credentials for the Service Account
+    automountServiceAccountToken: false
+    name:
+    annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadContraints: []
+  podAnnotations: {}
+  ## Additional pod labels
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+  extraConfigmapMounts: []
+  # - name: jaeger-config
+  #   mountPath: /config
+  #   subPath: ""
+  #   configMap: jaeger-config
+  #   readOnly: true
+  extraVolumes: []
+  sidecars: []
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  priorityClassName: ""
+  serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+    # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
+    relabelings: []
+    # -- ServiceMonitor metric relabel configs to apply to samples before ingestion
+    # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#endpoint
+    metricRelabelings: []
+  # config: |-
+  #   {
+  #     "dependencies": {
+  #       "dagMaxNumServices": 200,
+  #       "menuEnabled": true
+  #     },
+  #     "archiveEnabled": true,
+  #     "tracking": {
+  #       "gaID": "UA-000000-2",
+  #       "trackErrors": true
+  #     }
+  #   }
+  networkPolicy:
+    enabled: false
+    # ingressRules:
+    #   namespaceSelector: {}
+    #   podSelector: {}
+    #   customRules: []
+    # egressRules:
+    #   namespaceSelector: {}
+    #   podSelector: {}
+    #   customRules: []
+
+spark:
+  enabled: true
+  securityContext: {}
+  podSecurityContext: {}
+  annotations: {}
+  image:
+    registry: ""
+    repository: jaegertracing/spark-dependencies
+    tag: latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  cmdlineParams: {}
+  extraEnv: []
+  schedule: "49 23 * * *"
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  concurrencyPolicy: Forbid
+  resources:
+    {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 256m
+  #   memory: 128Mi
+  serviceAccount:
+    create: true
+    annotations: {}
+    # Explicitly mounts the API credentials for the Service Account
+    automountServiceAccountToken: false
+    name:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  extraSecretMounts: []
+  extraConfigmapMounts: []
+  podAnnotations: {}
+  ## Additional pod labels
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+  # ttlSecondsAfterFinished: 120
+
+
+hotrod:
+  enabled: false
+  args:
+    - all
+  # add extra arguments to the hotrod application to customize tracing
+  extraArgs: [ ]
+  #   - --otel-exporter=otlp
+  #   - --jaeger-ui=http://jaeger.chart.local
+  # add extra environment variables to the hotrod application
+  extraEnv:
+     - name: OTEL_EXPORTER_OTLP_ENDPOINT
+       value: http://jaeger-collector.observability.svc.cluster.local:4318
+
+
+#allInOne:
+#  enabled: true
+#  replicas: 1
+#agent:
+#  enabled: false
+#collector:
+#  enabled: false
+#query:
+#  enabled: false
+#
+#storage:
+#  type: memory
+##  badger:
+##    ephemeral: true
+##    persistence:
+##      mountPath: /mnt/data
+##      useExistingPvcName: "jaeger-pvc"
+#    # extraEnv: []
+#
+#provisionDataStore:
+#  cassandra: false
+#  elasticsearch: false
+#  kafka: false
+
+
+
+#apiVersion: jaegertracing.io/v1
+#kind: Jaeger
+#metadata:
+#  name: jaeger
+#  namespace: observability
+#spec:
+#  strategy: production
+#  collector:
+#    replicas: 1
+#    resources:
+#      requests:
+#        cpu: "200m"
+#        memory: "256Mi"
+#    options:
+#      log-level: debug
+#
+#  agent:
+#    strategy: DaemonSet
+#    resources:
+#      requests:
+#        cpu: "50m"
+#        memory: "64Mi"
+#    options:
+#      log-level: info
+#
+#  query:
+#    replicas: 1
+#    resources:
+#      requests:
+#        cpu: "200m"
+#        memory: "256Mi"
+#    options:
+#      log-level: info
+#  ingress:
+#    enabled: false
+#
+#  storage:
+#    type: cassandra
+##        secretName: cassandra-user
+#    options:
+#      cassandra:
+#        servers: cassandra-cluster-homelab-service.database.svc.cluster.local
+#        keyspace: jaeger_v1_jaeger_datacenter
+#        consistency: QUORUM
+#        username: cassandra-cluster-superuser
+#        password: xjegjzbrVBndmoIXrzFc
+#      cassandraCreateSchema:
+#        enabled: true
+#        datacenter: "jaeger_datacenter"
+#        mode: "test"
+#        timeout: "3m"
+#        traceTTL: "7d"
+#
+##       --admin.http.host-port string                               The host:port (e.g. 127.0.0.1:14269 or :14269) for the admin server, including health check, /metrics, etc. (default ":14269")
+##      --admin.http.tls.cert string                                Path to a TLS Certificate file, used to identify this server to clients
+##      --admin.http.tls.cipher-suites string                       Comma-separated list of cipher suites for the server, values are from tls package constants (https://golang.org/pkg/crypto/tls/#pkg-constants).
+##      --admin.http.tls.client-ca string                           Path to a TLS CA (Certification Authority) file used to verify certificates presented by clients (if unset, all clients are permitted)
+##      --admin.http.tls.enabled                                    Enable TLS on the server
+##      --admin.http.tls.key string                                 Path to a TLS Private Key file, used to identify this server to clients
+##      --admin.http.tls.max-version string                         Maximum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --admin.http.tls.min-version string                         Minimum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --cassandra-archive.basic.allowed-authenticators string     The comma-separated list of allowed password authenticators for Cassandra.If none are specified, there is a default 'approved' list that is used (https://github.com/gocql/gocql/blob/34fdeebefcbf183ed7f916f931aa0586fdaa1b40/conn.go#L27). If a non-empty list is provided, only specified authenticators are allowed.
+##      --cassandra-archive.connect-timeout duration                Timeout used for connections to Cassandra Servers (default 0s)
+##      --cassandra-archive.connections-per-host int                The number of Cassandra connections from a single backend instance
+##      --cassandra-archive.consistency string                      The Cassandra consistency level, e.g. ANY, ONE, TWO, THREE, QUORUM, ALL, LOCAL_QUORUM, EACH_QUORUM, LOCAL_ONE (default LOCAL_ONE)
+##      --cassandra-archive.disable-compression                     Disables the use of the default Snappy Compression while connecting to the Cassandra Cluster if set to true. This is useful for connecting to Cassandra Clusters(like Azure Cosmos Db with Cassandra API) that do not support SnappyCompression
+##      --cassandra-archive.enabled                                 Enable extra storage
+##      --cassandra-archive.keyspace string                         The Cassandra keyspace for Jaeger data
+##      --cassandra-archive.local-dc string                         The name of the Cassandra local data center for DC Aware host selection
+##      --cassandra-archive.max-retry-attempts int                  The number of attempts when reading from Cassandra
+##      --cassandra-archive.password string                         Password for password authentication for Cassandra
+##      --cassandra-archive.port int                                The port for cassandra
+##      --cassandra-archive.proto-version int                       The Cassandra protocol version
+##      --cassandra-archive.reconnect-interval duration             Reconnect interval to retry connecting to downed hosts (default 0s)
+##      --cassandra-archive.servers string                          The comma-separated list of Cassandra servers
+##      --cassandra-archive.socket-keep-alive duration              Cassandra's keepalive period to use, enabled if > 0 (default 0s)
+##      --cassandra-archive.timeout duration                        Timeout used for queries. A Timeout of zero means no timeout (default 0s)
+##      --cassandra-archive.tls.ca string                           Path to a TLS CA (Certification Authority) file used to verify the remote server(s) (by default will use the system truststore)
+##      --cassandra-archive.tls.cert string                         Path to a TLS Certificate file, used to identify this process to the remote server(s)
+##      --cassandra-archive.tls.enabled                             Enable TLS when talking to the remote server(s)
+##      --cassandra-archive.tls.key string                          Path to a TLS Private Key file, used to identify this process to the remote server(s)
+##      --cassandra-archive.tls.server-name string                  Override the TLS server name we expect in the certificate of the remote server(s)
+##      --cassandra-archive.tls.skip-host-verify                    (insecure) Skip server's certificate chain and host name verification
+##      --cassandra-archive.username string                         Username for password authentication for Cassandra
+##      --cassandra.basic.allowed-authenticators string             The comma-separated list of allowed password authenticators for Cassandra.If none are specified, there is a default 'approved' list that is used (https://github.com/gocql/gocql/blob/34fdeebefcbf183ed7f916f931aa0586fdaa1b40/conn.go#L27). If a non-empty list is provided, only specified authenticators are allowed.
+##      --cassandra.connect-timeout duration                        Timeout used for connections to Cassandra Servers (default 0s)
+##      --cassandra.connections-per-host int                        The number of Cassandra connections from a single backend instance (default 2)
+##      --cassandra.consistency string                              The Cassandra consistency level, e.g. ANY, ONE, TWO, THREE, QUORUM, ALL, LOCAL_QUORUM, EACH_QUORUM, LOCAL_ONE (default LOCAL_ONE) (default "")
+##      --cassandra.disable-compression                             Disables the use of the default Snappy Compression while connecting to the Cassandra Cluster if set to true. This is useful for connecting to Cassandra Clusters(like Azure Cosmos Db with Cassandra API) that do not support SnappyCompression
+##      --cassandra.index.logs                                      Controls log field indexing. Set to false to disable. (default true)
+##      --cassandra.index.process-tags                              Controls process tag indexing. Set to false to disable. (default true)
+##      --cassandra.index.tag-blacklist string                      The comma-separated list of span tags to blacklist from being indexed. All other tags will be indexed. Mutually exclusive with the whitelist option.
+##      --cassandra.index.tag-whitelist string                      The comma-separated list of span tags to whitelist for being indexed. All other tags will not be indexed. Mutually exclusive with the blacklist option.
+##      --cassandra.index.tags                                      Controls tag indexing. Set to false to disable. (default true)
+##      --cassandra.keyspace string                                 The Cassandra keyspace for Jaeger data (default "jaeger_v1_test")
+##      --cassandra.local-dc string                                 The name of the Cassandra local data center for DC Aware host selection
+##      --cassandra.max-retry-attempts int                          The number of attempts when reading from Cassandra (default 3)
+##      --cassandra.password string                                 Password for password authentication for Cassandra
+##      --cassandra.port int                                        The port for cassandra (default 9042)
+##      --cassandra.proto-version int                               The Cassandra protocol version (default 4)
+##      --cassandra.reconnect-interval duration                     Reconnect interval to retry connecting to downed hosts (default 1m0s)
+##      --cassandra.servers string                                  The comma-separated list of Cassandra servers (default "127.0.0.1")
+##      --cassandra.socket-keep-alive duration                      Cassandra's keepalive period to use, enabled if > 0 (default 0s)
+##      --cassandra.span-store-write-cache-ttl duration             The duration to wait before rewriting an existing service or operation name (default 12h0m0s)
+##      --cassandra.timeout duration                                Timeout used for queries. A Timeout of zero means no timeout (default 0s)
+##      --cassandra.tls.ca string                                   Path to a TLS CA (Certification Authority) file used to verify the remote server(s) (by default will use the system truststore)
+##      --cassandra.tls.cert string                                 Path to a TLS Certificate file, used to identify this process to the remote server(s)
+##      --cassandra.tls.enabled                                     Enable TLS when talking to the remote server(s)
+##      --cassandra.tls.key string                                  Path to a TLS Private Key file, used to identify this process to the remote server(s)
+##      --cassandra.tls.server-name string                          Override the TLS server name we expect in the certificate of the remote server(s)
+##      --cassandra.tls.skip-host-verify                            (insecure) Skip server's certificate chain and host name verification
+##      --cassandra.username string                                 Username for password authentication for Cassandra
+##      --collector.enable-span-size-metrics                        Enables metrics based on processed span size, which are more expensive to calculate.
+##      --collector.grpc-server.host-port string                    The host:port (e.g. 127.0.0.1:12345 or :12345) of the collector's gRPC server (default ":14250")
+##      --collector.grpc-server.max-connection-age duration         The maximum amount of time a connection may exist. Set this value to a few seconds or minutes on highly elastic environments, so that clients discover new collector nodes frequently. See https://pkg.go.dev/google.golang.org/grpc/keepalive#ServerParameters (default 0s)
+##      --collector.grpc-server.max-connection-age-grace duration   The additive period after MaxConnectionAge after which the connection will be forcibly closed. See https://pkg.go.dev/google.golang.org/grpc/keepalive#ServerParameters (default 0s)
+##      --collector.grpc-server.max-message-size int                The maximum receivable message size for the collector's gRPC server (default 4194304)
+##      --collector.grpc.tls.cert string                            Path to a TLS Certificate file, used to identify this server to clients
+##      --collector.grpc.tls.cipher-suites string                   Comma-separated list of cipher suites for the server, values are from tls package constants (https://golang.org/pkg/crypto/tls/#pkg-constants).
+##      --collector.grpc.tls.client-ca string                       Path to a TLS CA (Certification Authority) file used to verify certificates presented by clients (if unset, all clients are permitted)
+##      --collector.grpc.tls.enabled                                Enable TLS on the server
+##      --collector.grpc.tls.key string                             Path to a TLS Private Key file, used to identify this server to clients
+##      --collector.grpc.tls.max-version string                     Maximum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.grpc.tls.min-version string                     Minimum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.http-server.host-port string                    The host:port (e.g. 127.0.0.1:12345 or :12345) of the collector's HTTP server (default ":14268")
+##      --collector.http-server.idle-timeout duration               See https://pkg.go.dev/net/http#Server (default 0s)
+##      --collector.http-server.read-header-timeout duration        See https://pkg.go.dev/net/http#Server (default 2s)
+##      --collector.http-server.read-timeout duration               See https://pkg.go.dev/net/http#Server (default 0s)
+##      --collector.http.tls.cert string                            Path to a TLS Certificate file, used to identify this server to clients
+##      --collector.http.tls.cipher-suites string                   Comma-separated list of cipher suites for the server, values are from tls package constants (https://golang.org/pkg/crypto/tls/#pkg-constants).
+##      --collector.http.tls.client-ca string                       Path to a TLS CA (Certification Authority) file used to verify certificates presented by clients (if unset, all clients are permitted)
+##      --collector.http.tls.enabled                                Enable TLS on the server
+##      --collector.http.tls.key string                             Path to a TLS Private Key file, used to identify this server to clients
+##      --collector.http.tls.max-version string                     Maximum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.http.tls.min-version string                     Minimum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.num-workers int                                 The number of workers pulling items from the queue (default 50)
+##      --collector.otlp.enabled                                    Enables OpenTelemetry OTLP receiver on dedicated HTTP and gRPC ports (default true)
+##      --collector.otlp.grpc.host-port string                      The host:port (e.g. 127.0.0.1:12345 or :12345) of the collector's gRPC server (default ":4317")
+##      --collector.otlp.grpc.max-connection-age duration           The maximum amount of time a connection may exist. Set this value to a few seconds or minutes on highly elastic environments, so that clients discover new collector nodes frequently. See https://pkg.go.dev/google.golang.org/grpc/keepalive#ServerParameters (default 0s)
+##      --collector.otlp.grpc.max-connection-age-grace duration     The additive period after MaxConnectionAge after which the connection will be forcibly closed. See https://pkg.go.dev/google.golang.org/grpc/keepalive#ServerParameters (default 0s)
+##      --collector.otlp.grpc.max-message-size int                  The maximum receivable message size for the collector's gRPC server (default 4194304)
+##      --collector.otlp.grpc.tls.cert string                       Path to a TLS Certificate file, used to identify this server to clients
+##      --collector.otlp.grpc.tls.cipher-suites string              Comma-separated list of cipher suites for the server, values are from tls package constants (https://golang.org/pkg/crypto/tls/#pkg-constants).
+##      --collector.otlp.grpc.tls.client-ca string                  Path to a TLS CA (Certification Authority) file used to verify certificates presented by clients (if unset, all clients are permitted)
+##      --collector.otlp.grpc.tls.enabled                           Enable TLS on the server
+##      --collector.otlp.grpc.tls.key string                        Path to a TLS Private Key file, used to identify this server to clients
+##      --collector.otlp.grpc.tls.max-version string                Maximum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.otlp.grpc.tls.min-version string                Minimum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.otlp.grpc.tls.reload-interval duration          The duration after which the certificate will be reloaded (0s means will not be reloaded) (default 0s)
+##      --collector.otlp.http.cors.allowed-headers string           Comma-separated CORS allowed headers. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers
+##      --collector.otlp.http.cors.allowed-origins string           Comma-separated CORS allowed origins. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+##      --collector.otlp.http.host-port string                      The host:port (e.g. 127.0.0.1:12345 or :12345) of the collector's HTTP server (default ":4318")
+##      --collector.otlp.http.idle-timeout duration                 See https://pkg.go.dev/net/http#Server (default 0s)
+##      --collector.otlp.http.read-header-timeout duration          See https://pkg.go.dev/net/http#Server (default 2s)
+##      --collector.otlp.http.read-timeout duration                 See https://pkg.go.dev/net/http#Server (default 0s)
+##      --collector.otlp.http.tls.cert string                       Path to a TLS Certificate file, used to identify this server to clients
+##      --collector.otlp.http.tls.cipher-suites string              Comma-separated list of cipher suites for the server, values are from tls package constants (https://golang.org/pkg/crypto/tls/#pkg-constants).
+##      --collector.otlp.http.tls.client-ca string                  Path to a TLS CA (Certification Authority) file used to verify certificates presented by clients (if unset, all clients are permitted)
+##      --collector.otlp.http.tls.enabled                           Enable TLS on the server
+##      --collector.otlp.http.tls.key string                        Path to a TLS Private Key file, used to identify this server to clients
+##      --collector.otlp.http.tls.max-version string                Maximum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.otlp.http.tls.min-version string                Minimum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.otlp.http.tls.reload-interval duration          The duration after which the certificate will be reloaded (0s means will not be reloaded) (default 0s)
+##      --collector.queue-size int                                  The queue size of the collector (default 2000)
+##      --collector.queue-size-memory uint                          (experimental) The max memory size in MiB to use for the dynamic queue.
+##      --collector.tags string                                     One or more tags to be added to the Process tags of all spans passing through this collector. Ex: key1=value1,key2=${envVar:defaultValue}
+##      --collector.zipkin.cors.allowed-headers string              Comma-separated CORS allowed headers. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers
+##      --collector.zipkin.cors.allowed-origins string              Comma-separated CORS allowed origins. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+##      --collector.zipkin.host-port string                         The host:port (e.g. 127.0.0.1:9411 or :9411) of the collector's Zipkin server (disabled by default)
+##      --collector.zipkin.keep-alive                               KeepAlive configures allow Keep-Alive for Zipkin HTTP server (enabled by default) (default true)
+##      --collector.zipkin.tls.cert string                          Path to a TLS Certificate file, used to identify this server to clients
+##      --collector.zipkin.tls.cipher-suites string                 Comma-separated list of cipher suites for the server, values are from tls package constants (https://golang.org/pkg/crypto/tls/#pkg-constants).
+##      --collector.zipkin.tls.client-ca string                     Path to a TLS CA (Certification Authority) file used to verify certificates presented by clients (if unset, all clients are permitted)
+##      --collector.zipkin.tls.enabled                              Enable TLS on the server
+##      --collector.zipkin.tls.key string                           Path to a TLS Private Key file, used to identify this server to clients
+##      --collector.zipkin.tls.max-version string                   Maximum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --collector.zipkin.tls.min-version string                   Minimum TLS version supported (Possible values: 1.0, 1.1, 1.2, 1.3)
+##      --config-file string                                        Configuration file in JSON, TOML, YAML, HCL, or Java properties formats (default none). See spf13/viper for precedence.
+##      --downsampling.hashsalt string                              Salt used when hashing trace id for downsampling.
+##      --downsampling.ratio float                                  Ratio of spans passed to storage after downsampling (between 0 and 1), e.g ratio = 0.3 means we are keeping 30% of spans and dropping 70% of spans; ratio = 1.0 disables downsampling. (default 1)
+##  -h, --help                                                      help for jaeger-collector
+##      --log-encoding string                                       Log encoding. Supported values are 'json' and 'console'. (default "json")
+##      --log-level string                                          Minimal allowed log Level. For more levels see https://github.com/uber-go/zap (default "info")
+##      --metrics-backend string                                    Defines which metrics backend to use for metrics reporting: prometheus or none (default "prometheus")
+##      --metrics-http-route string                                 Defines the route of HTTP endpoint for metrics backends that support scraping (default "/metrics")
+##      --multi-tenancy.enabled                                     Enable tenancy header when receiving or querying
+##      --multi-tenancy.header string                               HTTP header carrying tenant (default "x-tenant")
+##      --multi-tenancy.tenants string                              comma-separated list of allowed values for --multi-tenancy.header header.  (If not supplied, tenants are not restricted)
+##      --sampling.strategies-file string                           The path for the sampling strategies file in JSON format. See sampling documentation to see format of the file
+##      --sampling.strategies-reload-interval duration              Reload interval to check and reload sampling strategies file. Zero value means no reloading (default 0s)
+##      --sampling.strategies.bugfix-5270                           Include default operation level strategies for Ratesampling type service level strategy. Cf. https://github.com/jaegertracing/jaeger/issues/5270
+##      --span-storage.type string                                  (deprecated) please use SPAN_STORAGE_TYPE environment variable. Run this binary with the 'env' command for help.

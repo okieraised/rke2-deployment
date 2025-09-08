@@ -103,6 +103,8 @@ releases:
     namespace: database
     createNamespace: true
     disableValidationOnInstall: true # Required for CRDs installation
+    values:
+      - ./environments/{{ .Environment.Name }}/mysql-operator.yaml
     labels:
       group: database
 

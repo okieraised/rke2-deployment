@@ -16,7 +16,7 @@ expose:
     # The tls certificate can be generated manually or by cert manager
     # 3) none: configure no tls certificate for the ingress. If the default
     # tls certificate is configured in the ingress controller, choose this option
-    certSource: auto
+    certSource: none
     auto:
       # The common name used to generate the certificate, it's necessary
       # when the type isn't "ingress"
@@ -28,7 +28,7 @@ expose:
       secretName: "homelab-tls"
   ingress:
     hosts:
-      core: {{ .Environment.Values.harbor.public_url }}
+      core: registry.homelab.io
     # set to the type of ingress controller if it has specific requirements.
     # leave as `default` for most ingress controllers.
     # set to `gce` if using the GCE ingress controller
@@ -120,7 +120,7 @@ expose:
 # the IP address of k8s node
 #
 # If Harbor is deployed behind the proxy, set it as the URL of proxy
-externalURL:  {{ .Environment.Values.harbor.public_url }}
+externalURL: https://registry.homelab.io
 
 # The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.
@@ -144,7 +144,7 @@ persistence:
       # Specify the "storageClass" used to provision the volume. Or the default
       # StorageClass will be used (the default).
       # Set it to "-" to disable dynamic provisioning
-      storageClass:  {{ .Environment.Values.host.storage_class }}
+      storageClass: local-path
       subPath: ""
       accessMode: ReadWriteOnce
       size: 1000Gi
@@ -152,7 +152,7 @@ persistence:
     jobservice:
       jobLog:
         existingClaim: ""
-        storageClass: {{ .Environment.Values.host.storage_class }}
+        storageClass: local-path
         subPath: ""
         accessMode: ReadWriteOnce
         size: 100Gi
@@ -161,7 +161,7 @@ persistence:
     # be ignored
     database:
       existingClaim: ""
-      storageClass: {{ .Environment.Values.host.storage_class }}
+      storageClass: local-path
       subPath: ""
       accessMode: ReadWriteOnce
       size: 100Gi
@@ -170,7 +170,7 @@ persistence:
     # be ignored
     redis:
       existingClaim: ""
-      storageClass: {{ .Environment.Values.host.storage_class }}
+      storageClass: local-path
       subPath: ""
       accessMode: ReadWriteOnce
       size: 10Gi
@@ -210,11 +210,11 @@ persistence:
       # Set an existing secret for S3 accesskey and secretkey
       # keys in the secret should be REGISTRY_STORAGE_S3_ACCESSKEY and REGISTRY_STORAGE_S3_SECRETKEY for registry
       #existingSecret: ""
-      region: {{ .Environment.Values.harbor.storage.s3_region }}
-      bucket: {{ .Environment.Values.harbor.storage.s3_bucket }}
-      accesskey: {{ .Environment.Values.harbor.storage.s3_access_key }}
-      secretkey: {{ .Environment.Values.harbor.storage.s3_secret_key }}
-      regionendpoint: {{ .Environment.Values.harbor.storage.s3_url }}
+      region: us-east-1
+      bucket: registry
+      accesskey: n9YAFeqXcQ7jOTaJRuRD
+      secretkey: vfgm2jr2MkeysSGZUdajFghEVURA1QkRsjrBBomj
+      regionendpoint: http://192.168.1.45:9000
       encrypt: false
       #keyid: mykeyid
       secure: false
@@ -230,9 +230,9 @@ persistence:
 # The initial password of Harbor admin. Change it from portal after launching Harbor
 # or give an existing secret for it
 # key in secret is given via (default to HARBOR_ADMIN_PASSWORD)
-existingSecretAdminPassword: harbor-admin-credentials
-existingSecretAdminPasswordKey: password
-#harborAdminPassword: ""
+#existingSecretAdminPassword: harbor-admin-credentials
+#existingSecretAdminPasswordKey: password
+harborAdminPassword: "123456aA@"
 
 # The internal TLS used for harbor components secure communicating. In order to enable https
 # in each component tls cert files need to provided in advance.
@@ -392,12 +392,12 @@ metrics:
     #   action: replace
 
 trace:
-  enabled: false
+  enabled: true
   # trace provider: jaeger or otel
   # jaeger should be 1.26+
   provider: jaeger
   # set sample_rate to 1 if you wanna sampling 100% of trace data; set 0.5 if you wanna sampling 50% of trace data, and so forth
-  sample_rate: 1
+  sample_rate: 0.5
   # namespace used to differentiate different harbor services
   # namespace:
   # attributes is a key value dict contains user defined attributes used to initialize trace provider
@@ -407,7 +407,7 @@ trace:
     # jaeger supports two modes:
     #   collector mode(uncomment endpoint and uncomment username, password if needed)
     #   agent mode(uncomment agent_host and agent_port)
-    endpoint: http://hostname:14268/api/traces
+    endpoint: http://jaeger-collector.observability.svc.cluster.local:14268/api/traces
     # username:
     # password:
     # agent_host: hostname
@@ -967,9 +967,6 @@ redis:
     # harborDatabaseIndex: "6"
     # cacheLayerDatabaseIndex: "7"
   external:
-    # support redis, redis+sentinel
-    # addr for redis: <host_redis>:<port_redis>
-    # addr for redis+sentinel: <host_sentinel1>:<port_sentinel1>,<host_sentinel2>:<port_sentinel2>,<host_sentinel3>:<port_sentinel3>
     addr: "192.168.0.2:6379"
     # The name of the set of Redis instances to monitor, it must be set to support redis+sentinel
     sentinelMasterSet: ""

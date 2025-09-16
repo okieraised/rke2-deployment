@@ -231,6 +231,25 @@ configmaps:
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           }
         }
+        
+        server {
+          listen 80;
+          server_name registry.homelab.io;
+          client_max_body_size 0;
+          charset     utf-8;
+        
+        
+          location / {
+            proxy_pass http://harbor.registry.svc.cluster.local:80/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host               $host;
+            proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto  https;
+            proxy_set_header X-Real-IP          $remote_addr;
+          }
+        }
 
 ingress:
   enabled: true
@@ -284,8 +303,15 @@ ingressList:
         paths:
           - path: /
             pathType: ImplementationSpecific
+      - host: registry.homelab.io
+        serviceName: gateway-nginx
+        servicePort: 80
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
     tls:
       - secretName: homelab-tls
         hosts:
           - events.homelab.io
           - mqtt.homelab.io
+          - registry.homelab.io

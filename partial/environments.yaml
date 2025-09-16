@@ -40,3 +40,5 @@ environments:
           namespace: airflow
       - observability:
           enabled: true
+      - harbor:
+          enabled: true

@@ -211,15 +211,15 @@ releases:
     labels:
       group: infrastructure
 
-#  - name: harbor
-#    condition: harbor.enabled
-#    chart: harbor/harbor
-#    namespace: registry
-#    createNamespace: true
-#    values:
-#      - ./environments/{{ .Environment.Name }}/harbor.yaml.gotmpl
-#    labels:
-#      group: registry
+  - name: harbor
+    condition: harbor.enabled
+    chart: harbor/harbor
+    namespace: registry
+    createNamespace: true
+    values:
+      - ./environments/{{ .Environment.Name }}/harbor.yaml
+    labels:
+      group: registry
 
   - name: jaeger-operator
     condition: observability.enabled
